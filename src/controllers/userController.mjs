@@ -4,8 +4,8 @@ import Seating from "../models/Seating.mjs";
 
 export const bookEvent = async (req, res) => {
   try {
-    const { eventId, eventSeatingId, userId, seatCount, seatingType } =
-      req.body;
+    const { eventId, eventSeatingId } = req.params;
+    const { userId, seatCount, seatingType } = req.body;
     const event = await Event.findById(eventId);
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
@@ -13,6 +13,11 @@ export const bookEvent = async (req, res) => {
     const eventSeating = await EventSeating.findById(eventSeatingId);
     if (!eventSeating) {
       return res.status(404).json({ message: "Event seating not found" });
+    }
+
+    const bookingUser = await User.findById(userId);
+    if (!bookingUser) {
+      return res.status(404).json({ message: "No user found" });
     }
     if (seatCount <= 0 || seatCount > eventSeating.remainingSeats) {
       return res.status(400).json({ message: "Invalid seat count" });
@@ -33,7 +38,9 @@ export const bookEvent = async (req, res) => {
 
 export const getBookings = async (req, res) => {
   try {
-    const bookings = await Event.find()
+    const { eventId, eventSeatingId } = req.params;
+    const { userId, seatCount, seatingType } = req.body;
+    const bookings = await Seating.find(userId)
       .populate("eventId")
       .populate("eventSeatingId")
       .populate("userId");
@@ -47,7 +54,7 @@ export const getBookings = async (req, res) => {
 export const getBookingById = async (req, res) => {
   try {
     const { id } = req.params;
-    const booking = await Event.findById(id)
+    const booking = await Seating.findById(id)
       .populate("eventId")
       .populate("eventSeatingId")
       .populate("userId");
@@ -73,11 +80,9 @@ export const cancelBooking = async (req, res) => {
     if (!eventSeating) {
       return res.status(404).json({ message: "Event seating not found" });
     }
-    // Update the remaining seats in the event seating
     eventSeating.remainingSeats += booking.seatCount;
     eventSeating.bookedSeats -= booking.seatCount;
     await eventSeating.save();
-    // Delete the booking
     await Seating.findByIdAndDelete(id);
 
     res.status(200).json({ message: "Booking cancelled successfully" });

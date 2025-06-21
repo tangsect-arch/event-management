@@ -9,9 +9,15 @@ import {
 const router = express.Router();
 
 router
-  .get("/event/bookings", getBookings)
-  .post("/event/bookings", bookEvent)
-  .get("/event/bookings/:id", getBookingById)
-  .delete("/event/bookings/:id", cancelBooking);
+  .get("/event/", getBookings)
+  .post("/event/:eventId/eventseating/:eventSeatingId/bookings", bookEvent)
+  .get(
+    "/event/:eventId/eventseating/:eventSeatingId/bookings/:id",
+    getBookingById
+  )
+  .delete(
+    "/event/:eventId/eventseating/:eventSeatingId/bookings/:id",
+    cancelBooking
+  );
 
 export default router;
