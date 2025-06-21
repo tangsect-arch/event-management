@@ -3,8 +3,9 @@ import User from "../models/User.mjs";
 import { generateToken } from "../middlewares/authMiddleware.mjs";
 
 export const createUser = async (req, res) => {
+  console.log("registering user", req.body);
   try {
-    let { username, email, password, name } = req.body;
+    let { username, email, password, name, role = "user" } = req.body;
     username = username.trim().toLowerCase();
     email = email.trim().toLowerCase();
     const existingUser = await User.find({ email });
@@ -16,13 +17,12 @@ export const createUser = async (req, res) => {
       email,
       password,
       name,
+      role,
     });
 
     await newUser.save();
 
-    res
-      .status(201)
-      .json({ message: "User created successfully", user: newUser });
+    res.status(201).json({ message: "User created successfully" });
   } catch (error) {
     console.error("Error creating user:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -36,9 +36,17 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    if (user.password !== password) {
+    if (!user.comparePassword(password)) {
       return res.status(401).json({ message: "Invalid password" });
     }
+
+    const token = generateToken(user);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+    });
+
     res.status(200).json({
       message: "Login successful",
       user: {
@@ -48,7 +56,7 @@ export const login = async (req, res) => {
         name: user.name,
         role: user.role,
       },
-      token: generateToken(user),
+      token,
     });
   } catch (error) {
     console.error("Error logging in:", error);
@@ -58,6 +66,11 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
   try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+    });
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     console.error("Error logging out:", error);

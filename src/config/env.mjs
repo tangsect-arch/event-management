@@ -15,6 +15,14 @@ export const env = {
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRATION: process.env.JWT_EXPIRATION || "1h",
   NODE_ENV: process.env.NODE_ENV || "dev",
+  PASSWORD_SALT_ROUNDS: parseInt(process.env.PASSWORD_SALT_ROUNDS, 10) || 10,
+};
+
+export const corsConfifg = {
+  origin: process.env.CORS_ORIGIN || "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 };
 
 export const rateLimits = {

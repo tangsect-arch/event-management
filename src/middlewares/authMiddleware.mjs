@@ -44,8 +44,8 @@ export const verifyAdmin = (req, res, next) => {
 };
 
 export const generateToken = (user) => {
-  const token = jwt.sign({ id: user._id, role: user.role }, env.jwtSecret, {
-    expiresIn: env.jwtExpiration,
+  const token = jwt.sign({ id: user._id, role: user.role }, env.JWT_SECRET, {
+    expiresIn: env.JWT_EXPIRATION || "1h",
   });
   return token;
 };
