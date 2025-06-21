@@ -31,8 +31,10 @@ export const createUser = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email: email.trim().toLowerCase() });
+    const { username, password } = req.body;
+    const user = await User.findOne({
+      username: username.trim().toLowerCase(),
+    });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

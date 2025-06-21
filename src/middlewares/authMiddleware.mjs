@@ -10,7 +10,7 @@ export const authMiddleware = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, env.jwtSecret);
+    const decoded = jwt.verify(token, env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
@@ -29,7 +29,7 @@ export const verifyAdmin = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, env.jwtSecret);
+    const decoded = jwt.verify(token, env.JWT_SECRET);
     if (decoded.role !== "admin") {
       return res
         .status(403)

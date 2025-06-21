@@ -9,7 +9,7 @@ import {
 const router = express.Router();
 
 router
-  .get("/event/", getBookings)
+  .get("/event", getBookings)
   .post("/event/:eventId/eventseating/:eventSeatingId/bookings", bookEvent)
   .get(
     "/event/:eventId/eventseating/:eventSeatingId/bookings/:id",
