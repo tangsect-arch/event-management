@@ -38,5 +38,7 @@ const EventSeatingTableSchema = new mongoose.Schema({
   },
 });
 
+EventSeatingTableSchema.index({ eventId: 1, seatingType: 1 }, { unique: true });
+
 const EventSeating = mongoose.model("EventSeating", EventSeatingTableSchema);
 export default EventSeating;

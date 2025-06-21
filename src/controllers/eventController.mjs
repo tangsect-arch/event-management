@@ -4,24 +4,22 @@ import Seating from "../models/Seating.mjs";
 
 export const createEvent = async (req, res) => {
   try {
-    const { name, date, location, description, seatCapacity, pricePerSeat } =
-      req.body;
+    const { eventName, eventDate, location, description } = req.body;
     const newEvent = new Event({
-      name,
-      date,
+      eventName,
+      eventDate: new Date(eventDate),
       location,
       description,
     });
 
-    await newEvent.save();
-    // Create seating for the event
-    const newSeating = new Seating({
-      eventId: newEvent._id,
-      seatCapacity,
-      remainingSeats: seatCapacity,
-      pricePerSeat,
+    await newEvent.save().catch((error) => {
+      if (error.code === 11000) {
+        return res.status(400).json({
+          message: "Event with the same location and date already exists.",
+        });
+      }
+      throw error;
     });
-    await newSeating.save();
 
     res
       .status(201)
@@ -34,7 +32,7 @@ export const createEvent = async (req, res) => {
 
 export const getEvents = async (req, res) => {
   try {
-    const events = await Event.find().populate("seating");
+    const events = await Event.find();
     res.status(200).json(events);
   } catch (error) {
     console.error("Error fetching events:", error);
@@ -45,7 +43,7 @@ export const getEvents = async (req, res) => {
 export const getEventById = async (req, res) => {
   try {
     const { id } = req.params;
-    const event = await Event.findById(id).populate("seating");
+    const event = await Event.findById(id);
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
@@ -59,11 +57,11 @@ export const getEventById = async (req, res) => {
 export const updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, date, location, description } = req.body;
+    const { eventName, eventDate, location, description } = req.body;
 
     const event = await Event.findByIdAndUpdate(
       id,
-      { name, date, location, description },
+      { eventName, eventDate, location, description },
       { new: true }
     );
 
@@ -98,11 +96,11 @@ export const deleteEvent = async (req, res) => {
 
 export const updateEventSeating = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { seatingId } = req.params;
     const { seatCapacity } = req.body;
 
-    const seating = await EventSeating.findOneAndUpdate(
-      { eventId: id },
+    const seating = await EventSeating.findByIdAndUpdate(
+      { id: seatingId },
       { seatCapacity, remainingSeats: seatCapacity - bookedSeats },
       { new: true }
     );
@@ -116,6 +114,27 @@ export const updateEventSeating = async (req, res) => {
     res.status(200).json({ message: "Seating updated successfully", seating });
   } catch (error) {
     console.error("Error updating seating:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const createEvetSeating = async (req, res) => {
+  try {
+    const { eventId, seatCapacity, pricePerSeat } = req.body;
+
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+    const newSeating = new Seating({
+      eventId: event._id,
+      seatCapacity,
+      remainingSeats: seatCapacity,
+      pricePerSeat,
+    });
+    await newSeating.save();
+  } catch (error) {
+    console.error("Error creating event seating:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
