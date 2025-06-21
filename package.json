@@ -31,7 +31,8 @@
     "helmet": "^8.1.0",
     "jest": "^30.0.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.16.0"
+    "mongoose": "^8.16.0",
+    "superfast": "^0.2.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

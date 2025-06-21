@@ -16,3 +16,12 @@ mongoose.connection.on("connected", () => {
 mongoose.connection.on("error", (error) => {
   console.error("Database connection error:", error);
 });
+
+export const disconnectDB = async () => {
+  try {
+    await mongoose.disconnect();
+    console.log("Database disconnected successfully");
+  } catch (error) {
+    console.error("Error disconnecting from the database:", error);
+  }
+};
