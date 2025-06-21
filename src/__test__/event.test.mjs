@@ -1,83 +1,94 @@
 import superfast from "superfast";
-import mongoose from "mongoose";
-import app from "../../app.js";
+import app from "../../app.mjs";
+import { loginAndGetToken } from "./helper.test.mjs";
 
-import { connectDB, disconnectDB } from "../config/db.mjs";
-import User from "../models/User.mjs";
-
+let token;
+let eventId;
+let eventSeatingId;
 beforeAll(async () => {
-  process.env.mongo_uri = "mongodb://localhost:27017/jest-test";
-  await connectDB();
+  token = await loginAndGetToken({
+    username: "testuser",
+    email: "sabari@mail.com",
+    password: "password123",
+    name: "Test User",
+    role: "admin",
+  });
 });
 
-// afterEach(async () => {
-//   await User.deleteMany();
-// });
-
-afterAll(async () => {
-  await disconnectDB();
-  mongoose.connection.close();
-  process.exit(0);
-});
-
-describe("Auth API Tests", () => {
-  it("should register a new user", async () => {
+describe("Event API Tests", () => {
+  it("should create new event", async () => {
     const response = await superfast(app)
-      .post("/api/auth/register")
+      .post("/api/v1/admin/event")
+      .headers({ Authorization: `Bearer ${token}` })
       .send({
-        username: "testuser",
-        email: "sabari@mail.com",
-        password: "password123",
-        name: "Test User",
-        role: "user",
+        eventName: "test event",
+        eventDate: new Date("05/21/2026"),
+        location: "tvpm",
+        description: "test",
       })
       .expect(201);
-    expect(response.body.message).toBe("User created successfully");
+    expect(response.body.message).toBe("Event created successfully");
   });
   it("should not register duplicate entry", async () => {
-    await superfast(app)
-      .post("/api/auth/register")
+    const response = await superfast(app)
+      .post("/api/v1/admin/event")
+      .headers({ Authorization: `Bearer ${token}` })
       .send({
-        username: "testuser",
-        email: "sabari@mail.com",
-        password: "password123",
-        name: "Test User",
-        role: "user",
+        eventName: "test event",
+        eventDate: new Date("05/21/2026"),
+        location: "tvpm",
+        description: "test",
       })
       .expect(400);
-    expect(response.body.message).toBe("User already exists");
+    expect(response.body.message).toBe("Events fetched successfully");
   });
 });
 
-describe("Auth API Tests", () => {
-  it("should login an existing user with correct credentials", async () => {
+describe("Should fetch events", () => {
+  it("should fetch events by pagenation", async () => {
     const response = await superfast(app)
-      .post("/api/auth/login")
-      .send({
-        username: "testuser",
-        password: "password123",
-      })
+      .get("/api/v1/admin/event?limit=10&page=1")
+      .headers({ Authorization: `Bearer ${token}` })
+      .send()
       .expect(200);
-    expect(response.body.message).toBe("Login successful");
+    expect(response.body.message).toBe("Events fetched successfully");
   });
-  it("should not allow user with wrong password", async () => {
-    await superfast(app)
-      .post("/api/auth/login")
+});
+
+describe("Should fetch event by id", () => {
+  it("should create new event", async () => {
+    const response = await superfast(app)
+      .get("/api/v1/admin/event/" + eventId)
+      .headers({ Authorization: `Bearer ${token}` })
+      .send()
+      .expect(200);
+    expect(response.body.message).toBe("Event fetched successfully");
+  });
+});
+
+describe("EventSeating API Tests", () => {
+  it("should create new event seating", async () => {
+    const response = await superfast(app)
+      .post("/api/v1/admin/event/" + eventId + "/seating")
+      .headers({ Authorization: `Bearer ${token}` })
       .send({
-        username: "testuser",
-        password: "password1234",
+        seatingType: "VIP",
+        seatCapacity: 100,
+        pricePerSeat: 1000,
+      })
+      .expect(201);
+    expect(response.body.message).toBe("Event seating created successfully");
+  });
+  it("should not register duplicate entry", async () => {
+    const response = await superfast(app)
+      .post("/api/v1/admin/event/" + eventId + "/seating")
+      .headers({ Authorization: `Bearer ${token}` })
+      .send({
+        seatingType: "VIP",
+        seatCapacity: 100,
+        pricePerSeat: 1000,
       })
       .expect(400);
-    expect(response.body.message).toBe("Invalid password");
-  });
-  it("should not allow user with wrong password", async () => {
-    await superfast(app)
-      .post("/api/auth/login")
-      .send({
-        username: "testuser1",
-        password: "password123",
-      })
-      .expect(400);
-    expect(response.body.message).toBe("User not found");
+    expect(response.body.message).toBe("Event seating fetched successfully");
   });
 });

@@ -21,9 +21,7 @@ export const createEvent = async (req, res) => {
       throw error;
     });
 
-    res
-      .status(201)
-      .json({ message: "Event created successfully", event: newEvent });
+    res.status(201).json({ message: "Event created successfully" });
   } catch (error) {
     console.error("Error creating event:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -32,8 +30,19 @@ export const createEvent = async (req, res) => {
 
 export const getEvents = async (req, res) => {
   try {
-    const events = await Event.find();
-    res.status(200).json(events);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const events = await Event.find().skip(skip).limit(limit);
+    const total = await Event.countDocuments();
+    res.status(200).json({
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      totalRecords: total,
+      data: events,
+      message: "Events fetched successfully",
+    });
   } catch (error) {
     console.error("Error fetching events:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -47,7 +56,10 @@ export const getEventById = async (req, res) => {
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
-    res.status(200).json(event);
+    res.status(200).json({
+      data: event,
+      message: "Event fetched successfully",
+    });
   } catch (error) {
     console.error("Error fetching event:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -118,7 +130,7 @@ export const updateEventSeating = async (req, res) => {
   }
 };
 
-export const createEvetSeating = async (req, res) => {
+export const createEventSeating = async (req, res) => {
   try {
     const { eventId, seatCapacity, pricePerSeat } = req.body;
 
@@ -133,6 +145,28 @@ export const createEvetSeating = async (req, res) => {
       pricePerSeat,
     });
     await newSeating.save();
+    res.status(201).json({
+      message: "Event seating created successfully",
+      data: newSeating,
+    });
+  } catch (error) {
+    console.error("Error creating event seating:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getEventSeatingById = async (req, res) => {
+  try {
+    const { seatingId } = req.params;
+
+    const event = await EventSeating.findById(seatingId);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+    res.status(200).json({
+      data: event,
+      message: "Event seating fetched successfully",
+    });
   } catch (error) {
     console.error("Error creating event seating:", error);
     res.status(500).json({ message: "Internal server error" });
