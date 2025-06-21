@@ -12,4 +12,7 @@ EVENT_ID, seat_type, seat_count
 
 Missed
 unit test
-integration test
+
+to run the project
+npm install
+npm start
