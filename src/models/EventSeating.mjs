@@ -10,6 +10,11 @@ const EventSeatingTableSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  seatingType: {
+    type: String,
+    required: true,
+    enum: ["VIP", "Regular", "Economy"],
+  },
   seatCapacity: {
     type: Number,
     required: true,
@@ -25,6 +30,11 @@ const EventSeatingTableSchema = new mongoose.Schema({
     required: true,
     min: 0,
     default: 0,
+  },
+  pricePerSeat: {
+    type: Number,
+    required: true,
+    min: 0,
   },
 });
 

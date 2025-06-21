@@ -21,10 +21,10 @@ app.use(rateLimit(rateLimits));
 app.use(cors);
 
 // console.log("jjjjj");
-// app.get("/test", (req, res) => {
-//   console.log("jjjkkkk");
-//   res.send("Hello, World!");
-// });
+app.get("/test", (req, res) => {
+  console.log("jjjkkkk");
+  res.send("Hello, World!");
+});
 
 app.use("api/v1/auth", authRouter);
 app.use("api/v1/admin", verifyAdmin, adminRouter);

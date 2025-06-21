@@ -4,7 +4,8 @@ import Seating from "../models/Seating.mjs";
 
 export const createEvent = async (req, res) => {
   try {
-    const { name, date, location, description, seatCapacity } = req.body;
+    const { name, date, location, description, seatCapacity, pricePerSeat } =
+      req.body;
     const newEvent = new Event({
       name,
       date,
@@ -18,6 +19,7 @@ export const createEvent = async (req, res) => {
       eventId: newEvent._id,
       seatCapacity,
       remainingSeats: seatCapacity,
+      pricePerSeat,
     });
     await newSeating.save();
 

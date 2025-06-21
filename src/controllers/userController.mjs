@@ -4,7 +4,8 @@ import Seating from "../models/Seating.mjs";
 
 export const bookEvent = async (req, res) => {
   try {
-    const { eventId, eventSeatingId, userId, seatCount } = req.body;
+    const { eventId, eventSeatingId, userId, seatCount, seatingType } =
+      req.body;
     const event = await Event.findById(eventId);
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
@@ -16,11 +17,12 @@ export const bookEvent = async (req, res) => {
     if (seatCount <= 0 || seatCount > eventSeating.remainingSeats) {
       return res.status(400).json({ message: "Invalid seat count" });
     }
-    const newBooking = new Event({
+    const newBooking = new Seating({
       eventId,
       eventSeatingId,
       userId,
       seatCount,
+      seatingType,
     });
     await newBooking.save();
   } catch (error) {
