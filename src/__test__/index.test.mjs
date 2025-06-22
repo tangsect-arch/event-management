@@ -1,6 +1,5 @@
-import request from "supertest";
+import { jest } from "@jest/globals";
 import mongoose from "mongoose";
-import app from "../../app.js";
 
 import { connectDB, disconnectDB } from "../config/db.mjs";
 import User from "../models/User.mjs";
@@ -9,23 +8,21 @@ import EventSeating from "../models/EventSeating.mjs";
 import Seating from "../models/Seating.mjs";
 
 import "./auth.test.mjs";
+import "./common.test.mjs";
 import "./event.test.mjs";
 import "./user.test.mjs";
 
-beforeAll(async () => {
-  process.env.mongo_uri = "mongodb://localhost:27017/jest-test";
-  await connectDB();
-});
+// await beforeAll(async () => {
+//   // process.env.mongo_uri = "mongodb://localhost:27017/jest-test";
+//   await connectDB();
+//   await dbInserts();
+// });
 
-afterEach(async () => {
-  await User.deleteMany();
-  await Event.deleteMany();
-  await EventSeating.deleteMany();
-  await Seating.deleteMany();
-});
-
-afterAll(async () => {
-  await disconnectDB();
+await afterAll(async () => {
+  // await User.deleteMany();
+  // await Event.deleteMany();
+  // await EventSeating.deleteMany();
+  // await Seating.deleteMany();
+  // await disconnectDB();
   mongoose.connection.close();
-  process.exit(0);
 });

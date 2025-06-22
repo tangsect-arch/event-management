@@ -21,6 +21,42 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /api/v1/admin/event/:
+ *   post:
+ *     summary: Create a new event seating
+ *     tags: [Admin Events]
+ *     security:
+ *      - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - seatingType
+ *               - seatCapacity
+ *               - pricePerSeat
+ *             properties:
+ *               seatingType:
+ *                 type: string
+ *                 enum:
+ *                   - VIP
+ *                   - Regular
+ *                   - Economy
+ *               seatCapacity:
+ *                 type: number
+ *               pricePerSeat:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: Seating type created successfully
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
  * /api/v1/admin/event/{id}:
  *   put:
  *     summary: Update an event

@@ -157,7 +157,7 @@ export const getEventSeatingByEventId = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const eventSeating = await EventSeating.findOne({ eventId: id });
+    const eventSeating = await EventSeating.findMany({ eventId: id });
 
     if (!eventSeating) {
       return res.status(404).json({ message: "Seating not found" });

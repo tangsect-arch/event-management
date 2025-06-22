@@ -4,10 +4,31 @@
   "description": "event management app",
   "main": "server.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles --forceExit --runInBand",
+    "test1": "jest --detectOpenHandles --forceExit",
     "start": "node server.mjs",
     "dev": "nodemon server.mjs",
     "app": "nodemon app.mjs"
+  },
+  "jestConfig": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.mjs",
+      "**/?(*.)+(spec|test).mjs"
+    ],
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "json",
+      "text",
+      "lcov"
+    ],
+    "transform": {
+      "^.+\\.m?js$": "babel-jest"
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.mjs"
+    ]
   },
   "repository": {
     "type": "git",
@@ -29,15 +50,16 @@
     "express": "^5.1.0",
     "express-rate-limit": "^7.5.1",
     "helmet": "^8.1.0",
-    "jest": "^30.0.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.0",
     "mongoose-to-swagger": "^1.5.1",
-    "supertest": "^7.1.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "cross-env": "^7.0.3",
+    "jest": "^30.0.2",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.1"
   }
 }

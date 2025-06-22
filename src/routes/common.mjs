@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getEventById,
   getEvents,
   getEventSeatingByEventId,
   getEventSeatingBySeatingId,
@@ -104,6 +105,7 @@ const router = express.Router();
 
 router
   .get("/event", getEvents)
+  .get("/event/:id", getEventById)
   .get("/event/:id/seating", getEventSeatingByEventId)
   .get("/event/:id/seating/:seatingId", getEventSeatingBySeatingId);
 

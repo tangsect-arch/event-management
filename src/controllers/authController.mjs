@@ -30,6 +30,7 @@ export const createUser = async (req, res) => {
 };
 
 export const login = async (req, res) => {
+  console.log("logging in user", req.body);
   try {
     const { username, password } = req.body;
     const user = await User.findOne({
@@ -39,7 +40,7 @@ export const login = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     if (!user.comparePassword(password)) {
-      return res.status(401).json({ message: "Invalid password" });
+      return res.status(404).json({ message: "Invalid password" });
     }
 
     const token = generateToken(user);
@@ -61,7 +62,6 @@ export const login = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error("Error logging in:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
