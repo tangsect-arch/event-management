@@ -19,3 +19,6 @@ Event management app
 
 #SWAGGER DOCS
 http://localhost:{PORT}/api-docs/#/
+
+#Time taken 10 hours
+#Status test cases pending
