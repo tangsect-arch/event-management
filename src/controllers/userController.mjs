@@ -4,13 +4,13 @@ import Seating from "../models/Seating.mjs";
 
 export const bookEvent = async (req, res) => {
   try {
-    const { eventId, eventSeatingId } = req.params;
+    const { id, seatingId } = req.params;
     const { userId, seatCount, seatingType } = req.body;
     const event = await Event.findById(eventId);
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
-    const eventSeating = await EventSeating.findById(eventSeatingId);
+    const eventSeating = await EventSeating.findById(seatingId);
     if (!eventSeating) {
       return res.status(404).json({ message: "Event seating not found" });
     }
@@ -23,8 +23,8 @@ export const bookEvent = async (req, res) => {
       return res.status(400).json({ message: "Invalid seat count" });
     }
     const newBooking = new Seating({
-      eventId,
-      eventSeatingId,
+      eventId: id,
+      eventSeatingId: seatingId,
       userId,
       seatCount,
       seatingType,
@@ -38,8 +38,7 @@ export const bookEvent = async (req, res) => {
 
 export const getBookings = async (req, res) => {
   try {
-    const { eventId, eventSeatingId } = req.params;
-    const { userId, seatCount, seatingType } = req.body;
+    const { userId } = req.body;
     const bookings = await Seating.find(userId)
       .populate("eventId")
       .populate("eventSeatingId")
@@ -70,8 +69,8 @@ export const getBookingById = async (req, res) => {
 
 export const cancelBooking = async (req, res) => {
   try {
-    const { id } = req.params;
-    const booking = await Seating.findById(id);
+    const { bookingId } = req.params;
+    const booking = await Seating.findById(bookingId);
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
@@ -83,7 +82,13 @@ export const cancelBooking = async (req, res) => {
     eventSeating.remainingSeats += booking.seatCount;
     eventSeating.bookedSeats -= booking.seatCount;
     await eventSeating.save();
-    await Seating.findByIdAndDelete(id);
+
+    const seating = Seating.findById(bookingId);
+    if (!seating) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+    booking.status = "cancelled";
+    await booking.save();
 
     res.status(200).json({ message: "Booking cancelled successfully" });
   } catch (error) {

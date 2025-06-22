@@ -95,8 +95,6 @@ export const deleteEvent = async (req, res) => {
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
-
-    // Delete associated seating
     await EventSeating.deleteMany({ eventId: id });
 
     res.status(200).json({ message: "Event deleted successfully" });
@@ -155,16 +153,35 @@ export const createEventSeating = async (req, res) => {
   }
 };
 
-export const getEventSeatingById = async (req, res) => {
+export const getEventSeatingByEventId = async (req, res) => {
   try {
-    const { seatingId } = req.params;
+    const { id } = req.params;
 
-    const event = await EventSeating.findById(seatingId);
-    if (!event) {
-      return res.status(404).json({ message: "Event not found" });
+    const eventSeating = await EventSeating.findOne({ eventId: id });
+
+    if (!eventSeating) {
+      return res.status(404).json({ message: "Seating not found" });
     }
     res.status(200).json({
-      data: event,
+      data: eventSeating,
+      message: "Event seating fetched successfully",
+    });
+  } catch (error) {
+    console.error("Error creating event seating:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getEventSeatingBySeatingId = async (req, res) => {
+  try {
+    const { id, seatingId } = req.params;
+
+    const evenSteating = await EventSeating.findById(seatingId);
+    if (!evenSteating) {
+      return res.status(404).json({ message: "Seating not found" });
+    }
+    res.status(200).json({
+      data: evenSteating,
       message: "Event seating fetched successfully",
     });
   } catch (error) {

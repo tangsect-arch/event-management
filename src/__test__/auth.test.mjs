@@ -1,9 +1,9 @@
-import superfast from "superfast";
+import request from "supertest";
 import app from "../../app.js";
 
 describe("Auth API Tests", () => {
   it("should register a new user", async () => {
-    const response = await superfast(app)
+    const response = await request(app)
       .post("/api/v1/auth/register")
       .send({
         username: "testuser",
@@ -16,7 +16,7 @@ describe("Auth API Tests", () => {
     expect(response.body.message).toBe("User created successfully");
   });
   it("should not register duplicate entry", async () => {
-    await superfast(app)
+    await request(app)
       .post("/api/v1/auth/register")
       .send({
         username: "testuser",
@@ -32,7 +32,7 @@ describe("Auth API Tests", () => {
 
 describe("Auth API Tests", () => {
   it("should login an existing user with correct credentials", async () => {
-    const response = await superfast(app)
+    const response = await request(app)
       .post("/api/v1/auth/login")
       .send({
         username: "testuser",
@@ -42,7 +42,7 @@ describe("Auth API Tests", () => {
     expect(response.body.message).toBe("Login successful");
   });
   it("should not allow user with wrong password", async () => {
-    await superfast(app)
+    await request(app)
       .post("/api/v1/auth/login")
       .send({
         username: "testuser",
@@ -52,7 +52,7 @@ describe("Auth API Tests", () => {
     expect(response.body.message).toBe("Invalid password");
   });
   it("should not allow user with wrong password", async () => {
-    await superfast(app)
+    await request(app)
       .post("/api/v1/auth/login")
       .send({
         username: "testuser1",
