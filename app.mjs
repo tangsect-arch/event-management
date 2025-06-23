@@ -17,6 +17,7 @@ import {
 
 import swaggerSpec from "./src/swagger/swagget.mjs";
 import { errorHandler } from "./src/middlewares/errorHandler.mjs";
+import { morganConfig } from "./src/utils/logger.mjs";
 
 const app = express();
 
@@ -26,6 +27,12 @@ app.use(cookieParser());
 app.use(rateLimit(rateLimits));
 app.use(cors(corsConfifg));
 app.use(helmet());
+
+app.use(
+  morgan(morganConfig.format, {
+    stream: morganConfig.stream,
+  })
+);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api/v1/common", commonRouter);
