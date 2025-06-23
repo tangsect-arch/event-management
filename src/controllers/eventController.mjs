@@ -15,16 +15,17 @@ export const createEvent = async (req, res) => {
     await newEvent.save().catch((error) => {
       if (error.code === 11000) {
         return res.status(400).json({
+          success: false,
           message: "Event with the same location and date already exists.",
         });
       }
-      throw error;
     });
 
-    res.status(201).json({ message: "Event created successfully" });
+    res
+      .status(201)
+      .json({ success: true, message: "Event created successfully" });
   } catch (error) {
-    console.error("Error creating event:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -35,7 +36,13 @@ export const getEvents = async (req, res) => {
     const skip = (page - 1) * limit;
     const events = await Event.find().skip(skip).limit(limit);
     const total = await Event.countDocuments();
+    if (events.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No events found" });
+    }
     res.status(200).json({
+      success: true,
       page,
       limit,
       totalPages: Math.ceil(total / limit),
@@ -44,8 +51,7 @@ export const getEvents = async (req, res) => {
       message: "Events fetched successfully",
     });
   } catch (error) {
-    console.error("Error fetching events:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -57,12 +63,12 @@ export const getEventById = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
     res.status(200).json({
+      success: true,
       data: event,
       message: "Event fetched successfully",
     });
   } catch (error) {
-    console.error("Error fetching event:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -78,13 +84,16 @@ export const updateEvent = async (req, res) => {
     );
 
     if (!event) {
-      return res.status(404).json({ message: "Event not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Event not found" });
     }
 
-    res.status(200).json({ message: "Event updated successfully", event });
+    res
+      .status(200)
+      .json({ success: true, message: "Event updated successfully", event });
   } catch (error) {
-    console.error("Error updating event:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -93,16 +102,17 @@ export const deleteEvent = async (req, res) => {
     const { id } = req.params;
     const event = await Event.findByIdAndDelete(id);
     if (!event) {
-      return res.status(404).json({ message: "Event not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Event not found" });
     }
-
-    // Delete associated seating
     await EventSeating.deleteMany({ eventId: id });
 
-    res.status(200).json({ message: "Event deleted successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "Event deleted successfully" });
   } catch (error) {
-    console.error("Error deleting event:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -120,13 +130,16 @@ export const updateEventSeating = async (req, res) => {
     if (!seating) {
       return res
         .status(404)
-        .json({ message: "Seating not found for this event" });
+        .json({ success: false, message: "Seating not found for this event" });
     }
 
-    res.status(200).json({ message: "Seating updated successfully", seating });
+    res.status(200).json({
+      success: true,
+      message: "Seating updated successfully",
+      seating,
+    });
   } catch (error) {
-    console.error("Error updating seating:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -136,7 +149,9 @@ export const createEventSeating = async (req, res) => {
 
     const event = await Event.findById(eventId);
     if (!event) {
-      return res.status(404).json({ message: "Event not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Event not found" });
     }
     const newSeating = new Seating({
       eventId: event._id,
@@ -146,29 +161,52 @@ export const createEventSeating = async (req, res) => {
     });
     await newSeating.save();
     res.status(201).json({
+      success: true,
       message: "Event seating created successfully",
       data: newSeating,
     });
   } catch (error) {
-    console.error("Error creating event seating:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const getEventSeatingByEventId = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const eventSeating = await EventSeating.findMany({ eventId: id });
+
+    if (!eventSeating) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Seating not found" });
+    }
+    res.status(200).json({
+      success: true,
+      data: eventSeating,
+      message: "Event seating fetched successfully",
+    });
+  } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const getEventSeatingById = async (req, res) => {
+export const getEventSeatingBySeatingId = async (req, res) => {
   try {
-    const { seatingId } = req.params;
+    const { id, seatingId } = req.params;
 
-    const event = await EventSeating.findById(seatingId);
-    if (!event) {
-      return res.status(404).json({ message: "Event not found" });
+    const evenSteating = await EventSeating.findById(seatingId);
+    if (!evenSteating) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Seating not found" });
     }
     res.status(200).json({
-      data: event,
+      data: evenSteating,
+      success: true,
       message: "Event seating fetched successfully",
     });
   } catch (error) {
-    console.error("Error creating event seating:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

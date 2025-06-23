@@ -1,95 +1,98 @@
-import superfast from "superfast";
+import request from "supertest";
 import app from "../../app.mjs";
-import { loginAndGetToken } from "./helper.test.mjs";
+import { loginAndGetToken, getEventAndSeatingIds } from "./helper.mjs";
 
 let token;
-let eventId;
-let eventSeatingId;
+const eventId = "6857e5dc714ab96cf3304cb2";
+const eventSeatingId = "6857e5dc714ab96cf3304cb3";
 
 beforeAll(async () => {
   token = await loginAndGetToken({
-    username: "testuser",
-    email: "sabari@mail.com",
-    password: "password123",
-    name: "Test User",
-    role: "admin",
+    username: "testadmin",
+    password: "testpassword123",
   });
 });
 
 describe("Event API Tests", () => {
-  it("should create new event", async () => {
-    const response = await superfast(app)
+  it("should create a new event", async () => {
+    const response = await request(app)
       .post("/api/v1/admin/event")
-      .headers({ Authorization: `Bearer ${token}` })
+      .set("Authorization", `Bearer ${token}`)
       .send({
         eventName: "test event",
-        eventDate: new Date("05/21/2026"),
+        eventDate: "2026-05-21T00:00:00.000Z",
         location: "tvpm",
         description: "test",
       })
       .expect(201);
+
     expect(response.body.message).toBe("Event created successfully");
   });
-  it("should not register duplicate entry", async () => {
-    const response = await superfast(app)
+
+  it("should not register duplicate event entry", async () => {
+    const response = await request(app)
       .post("/api/v1/admin/event")
-      .headers({ Authorization: `Bearer ${token}` })
+      .set("Authorization", `Bearer ${token}`)
       .send({
         eventName: "test event",
-        eventDate: new Date("05/21/2026"),
+        eventDate: "2026-05-21T00:00:00.000Z",
         location: "tvpm",
         description: "test",
       })
       .expect(400);
-    expect(response.body.message).toBe("Events fetched successfully");
+
+    expect(response.body.message).toBe("Event already exists"); // Adjust if needed
   });
 });
 
-describe("Should fetch events", () => {
-  it("should fetch events by pagenation", async () => {
-    const response = await superfast(app)
+describe("Event Pagination", () => {
+  it("should fetch paginated events", async () => {
+    const response = await request(app)
       .get("/api/v1/admin/event?limit=10&page=1")
-      .headers({ Authorization: `Bearer ${token}` })
-      .send()
+      .set("Authorization", `Bearer ${token}`)
       .expect(200);
+
     expect(response.body.message).toBe("Events fetched successfully");
   });
 });
 
-describe("Should fetch event by id", () => {
-  it("should create new event", async () => {
-    const response = await superfast(app)
-      .get("/api/v1/admin/event/" + eventId)
-      .headers({ Authorization: `Bearer ${token}` })
-      .send()
+describe("Get Event by ID", () => {
+  it("should fetch an event by ID", async () => {
+    const response = await request(app)
+      .get(`/api/v1/admin/event/${eventId}`)
+      .set("Authorization", `Bearer ${token}`)
       .expect(200);
+
     expect(response.body.message).toBe("Event fetched successfully");
   });
 });
 
-describe("EventSeating API Tests", () => {
+describe("Event Seating API Tests", () => {
   it("should create new event seating", async () => {
-    const response = await superfast(app)
-      .post("/api/v1/admin/event/" + eventId + "/seating")
-      .headers({ Authorization: `Bearer ${token}` })
+    const response = await request(app)
+      .post(`/api/v1/admin/event/${eventId}/seating`)
+      .set("Authorization", `Bearer ${token}`)
       .send({
         seatingType: "VIP",
         seatCapacity: 100,
         pricePerSeat: 1000,
       })
       .expect(201);
+
     expect(response.body.message).toBe("Event seating created successfully");
   });
-  it("should not register duplicate entry", async () => {
-    const response = await superfast(app)
-      .post("/api/v1/admin/event/" + eventId + "/seating")
-      .headers({ Authorization: `Bearer ${token}` })
+
+  it("should not allow duplicate event seating", async () => {
+    const response = await request(app)
+      .post(`/api/v1/admin/event/${eventId}/seating`)
+      .set("Authorization", `Bearer ${token}`)
       .send({
         seatingType: "VIP",
         seatCapacity: 100,
         pricePerSeat: 1000,
       })
       .expect(400);
-    expect(response.body.message).toBe("Event seating fetched successfully");
+
+    expect(response.body.message).toBe("Event seating already exists"); // Adjust as needed
   });
 });

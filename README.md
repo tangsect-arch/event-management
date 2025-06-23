@@ -1,18 +1,5 @@
 # event-management
 
-event management app
-USER TABLE
-email, username, password, name, role
-
-EVENT TABLE
-event_name, event_date, location, description
-
-EVENT SEATING
-EVENT_ID, seat_type, seat_count
-
-Missed
-unit test
-
 to run the project
 npm install
 npm start
@@ -26,3 +13,12 @@ SecretKey=EventSecretkey
 JWT_SECRET=JWTSecret
 JWT_EXPIRATION=1h
 PASSWORD_SALT_ROUNDS=10
+
+#PROJECT DESCRIPTION
+Event management app
+
+#SWAGGER DOCS
+http://localhost:{PORT}/api-docs/#/
+
+#Time taken 10 hours
+#Status test cases pending

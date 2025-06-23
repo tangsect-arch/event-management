@@ -14,7 +14,6 @@ export const authMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    console.error("Authentication error:", error);
     res.status(400).json({ message: "Invalid token." });
   }
 };
@@ -38,7 +37,6 @@ export const verifyAdmin = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    console.error("Authentication error:", error);
     res.status(400).json({ message: "Invalid token." });
   }
 };

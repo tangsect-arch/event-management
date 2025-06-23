@@ -21,6 +21,11 @@ const SeatingTableSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  status: {
+    type: String,
+    enum: ["confirmed", "cancelled"],
+    default: "confirmed",
+  },
   createdAt: {
     type: Date,
     default: Date.now,
