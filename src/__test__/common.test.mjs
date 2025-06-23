@@ -17,8 +17,6 @@ describe("Event API Tests", () => {
 });
 
 describe("Event API by event id Tests", () => {
-  console.log("Event ID:", eventId);
-  console.log("Event Seating ID:", eventSeatingId);
   it("Should fetch events", async () => {
     const response = await request(app)
       .get("/api/v1/common/event/" + eventId)
@@ -29,8 +27,6 @@ describe("Event API by event id Tests", () => {
 });
 
 describe("Seating API by event id Tests", () => {
-  console.log("Event ID:", eventId);
-  console.log("Event Seating ID:", eventSeatingId);
   it("Should fetch events", async () => {
     const response = await request(app)
       .get("/api/v1/common/event/" + eventId + "/seating")
@@ -41,8 +37,6 @@ describe("Seating API by event id Tests", () => {
 });
 
 describe("Seating API by seating id Tests", () => {
-  console.log("Event ID:", eventId);
-  console.log("Event Seating ID:", eventSeatingId);
   it("Should fetch events", async () => {
     const response = await request(app)
       .get(

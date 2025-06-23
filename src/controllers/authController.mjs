@@ -3,7 +3,6 @@ import User from "../models/User.mjs";
 import { generateToken } from "../middlewares/authMiddleware.mjs";
 
 export const createUser = async (req, res) => {
-  console.log("registering user", req.body);
   try {
     let { username, email, password, name, role = "user" } = req.body;
     username = username.trim().toLowerCase();
@@ -28,13 +27,11 @@ export const createUser = async (req, res) => {
       .status(201)
       .json({ success: true, message: "User created successfully" });
   } catch (error) {
-    console.error("Error creating user:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
 export const login = async (req, res) => {
-  console.log("logging in user", req.body);
   try {
     const { username, password } = req.body;
     const user = await User.findOne({
@@ -84,7 +81,6 @@ export const logout = (req, res) => {
     });
     res.status(200).json({ success: true, message: "Logout successful" });
   } catch (error) {
-    console.error("Error logging out:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

@@ -88,7 +88,6 @@ export const loginAndGetToken = async ({ username, password }) => {
   const res = await request(app)
     .post("/api/v1/auth/login")
     .send({ username, password });
-  console.log(res.body);
   return await res.body.token;
 };
 
@@ -121,7 +120,6 @@ export const getEventAndSeatingIds = async () => {
     .sort({ createdAt: -1 })
     .lean();
 
-  console.log("Event Seating:", eventSeating);
   if (!eventSeating) {
     throw new Error("No event seating found in the database");
   }
