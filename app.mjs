@@ -14,7 +14,9 @@ import {
   authMiddleware,
   verifyAdmin,
 } from "./src/middlewares/authMiddleware.mjs";
+
 import swaggerSpec from "./src/swagger/swagget.mjs";
+import { errorHandler } from "./src/middlewares/errorHandler.mjs";
 
 const app = express();
 
@@ -30,5 +32,7 @@ app.use("/api/v1/common", commonRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/admin", verifyAdmin, adminRouter);
 app.use("/api/v1/user", authMiddleware, userRouter);
+
+app.use(errorHandler);
 
 export default app;

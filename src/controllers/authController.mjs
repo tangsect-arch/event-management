@@ -10,7 +10,9 @@ export const createUser = async (req, res) => {
     email = email.trim().toLowerCase();
     const existingUser = await User.find({ email });
     if (existingUser.length > 0) {
-      return res.status(400).json({ message: "User already exists" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User already exists" });
     }
     const newUser = new User({
       username,
@@ -22,10 +24,12 @@ export const createUser = async (req, res) => {
 
     await newUser.save();
 
-    res.status(201).json({ message: "User created successfully" });
+    res
+      .status(201)
+      .json({ success: true, message: "User created successfully" });
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -37,10 +41,14 @@ export const login = async (req, res) => {
       username: username.trim().toLowerCase(),
     });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
     if (!user.comparePassword(password)) {
-      return res.status(404).json({ message: "Invalid password" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Invalid password" });
     }
 
     const token = generateToken(user);
@@ -51,6 +59,7 @@ export const login = async (req, res) => {
     });
 
     res.status(200).json({
+      success: true,
       message: "Login successful",
       user: {
         id: user._id,
@@ -62,7 +71,7 @@ export const login = async (req, res) => {
       token,
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -73,9 +82,9 @@ export const logout = (req, res) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
     });
-    res.status(200).json({ message: "Logout successful" });
+    res.status(200).json({ success: true, message: "Logout successful" });
   } catch (error) {
     console.error("Error logging out:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
