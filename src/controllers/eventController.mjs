@@ -269,21 +269,22 @@ export const eventLists = async (req, res) => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    let from, to;
+    let from = today;
+    let to;
+    const filter = {};
 
     if (fromDate && toDate) {
-      from = new Date(fromDate);
+      from = from < from ? from : new Date(fromDate);
       to = new Date(toDate);
-
+      filter.date = { $gte: from, $lte: to };
       if (from > to) {
         return res
           .status(400)
           .json({ error: "from date cannot be after to date." });
       }
     } else if (fromDate && !toDate) {
-    } else if (!fromDate && toDate) {
+      filter.date = from;
     }
-    const filter = {};
 
     if (name) {
       filter.name = { $regex: name, $options: "i" };
@@ -292,8 +293,6 @@ export const eventLists = async (req, res) => {
     if (location) {
       filter.location = { $regex: location, $options: "i" };
     }
-
-    filter.date = { $gte: from, $lte: to };
 
     const events = await Event.find(filter)
       .skip(Number(skip))
