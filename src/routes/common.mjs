@@ -35,14 +35,12 @@ const router = express.Router();
  *         description: Partial match on location (case-insensitive)
  *       - in: query
  *         name: fromDate
- *         required: true
  *         schema:
  *           type: string
  *           format: date
  *         description: Start date for filtering (MM-DD-YYYY). Must be today or later.
  *       - in: query
  *         name: toDate
- *         required: true
  *         schema:
  *           type: string
  *           format: date
@@ -101,25 +99,9 @@ const router = express.Router();
  *         schema:
  *           type: string
  *         description: The ID of the seating type
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object *
- *             properties:
- *               userId:
- *                 type: string
- *                 required: true
- *               seatCount:
- *                 type: number
- *                 required: true
- *               seatingType:
- *                 type: number
- *                 required: true
  *     responses:
- *       201:
- *         description: Booking successful
+ *       200:
+ *         description: Event seating fetched successfully
  */
 
 router

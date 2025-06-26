@@ -23,7 +23,7 @@ const router = express.Router();
  * @swagger
  * /api/v1/admin/event/:
  *   post:
- *     summary: Create a new event seating
+ *     summary: Create a new event
  *     tags: [Admin Events]
  *     security:
  *      - bearerAuth: []
@@ -34,20 +34,21 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             required:
- *               - seatingType
- *               - seatCapacity
- *               - pricePerSeat
+ *               - eventName
+ *               - eventDate
+ *               - location
+ *               - description
  *             properties:
- *               seatingType:
+ *               eventName:
  *                 type: string
- *                 enum:
- *                   - VIP
- *                   - Regular
- *                   - Economy
- *               seatCapacity:
- *                 type: number
- *               pricePerSeat:
- *                 type: number
+ *               eventDate:
+ *                 type: string
+ *                 format: mm/dd/yyyy
+ *                 description: Date format should be mm/dd/yyyy
+ *               location:
+ *                 type: string
+ *               description:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Seating type created successfully
@@ -219,6 +220,8 @@ const router = express.Router();
  *   get:
  *     summary: Get all events
  *     tags: [Admin Events]
+ *     security:
+ *        - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: name

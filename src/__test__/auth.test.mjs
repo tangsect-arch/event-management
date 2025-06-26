@@ -8,7 +8,8 @@ describe("Auth API Tests", () => {
       .send({
         username: "sampleuser" + Math.floor(Math.random() * 1000),
         email: "sampleuser1@mail.com",
-        password: "password123",
+        password:
+          "$2b$10$JhGDUMjMWZiOEGkbHHvDIOZGp7vSi5IUT7CUuHzknblqArf8RlCWK",
         name: "Test User",
         role: "admin",
       })
@@ -21,7 +22,8 @@ describe("Auth API Tests", () => {
       .send({
         username: "sampleuser",
         email: "sampleuser1@mail.com",
-        password: "password123",
+        password:
+          "$2b$10$JhGDUMjMWZiOEGkbHHvDIOZGp7vSi5IUT7CUuHzknblqArf8RlCWK",
         name: "Test User",
         role: "user",
       })

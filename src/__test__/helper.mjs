@@ -10,14 +10,14 @@ export const dbInserts = async () => {
   const users = await User.insertMany([
     {
       username: "testadmin",
-      password: "testpassword123",
+      password: "$2b$10$2/iipf18qpABNpMNv59lZeobdZWz5CNEeZT5icU135G0wjRXy4uQu",
       role: "admin",
       email: "testadmin@mail.com",
       name: "Test Admin",
     },
     {
       username: "testuser",
-      password: "testpassword123",
+      password: "$2b$10$2/iipf18qpABNpMNv59lZeobdZWz5CNEeZT5icU135G0wjRXy4uQu",
       role: "user",
       email: "testuser@mail.com",
       name: "Test Admin",

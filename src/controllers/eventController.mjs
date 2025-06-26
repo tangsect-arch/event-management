@@ -1,6 +1,5 @@
 import Event from "../models/Event.mjs";
 import EventSeating from "../models/EventSeating.mjs";
-import Seating from "../models/Seating.mjs";
 
 export const createEvent = async (req, res) => {
   try {
@@ -51,14 +50,19 @@ export const getEvents = async (req, res) => {
       to = new Date(toDate);
 
       if (from > to) {
-        return res
-          .status(400)
-          .json({ error: "from date cannot be after to date." });
+        return res.status(400).json({
+          success: false,
+          error: "from date cannot be after to date.",
+        });
       }
     } else if (fromDate && !toDate) {
-      return res.status(400).json({ error: "to date is required." });
+      return res
+        .status(400)
+        .json({ success: false, error: "to date is required." });
     } else if (!fromDate && toDate) {
-      return res.status(400).json({ error: "from date is required." });
+      return res
+        .status(400)
+        .json({ success: false, error: "from date is required." });
     }
     const filter = {};
 
@@ -74,6 +78,7 @@ export const getEvents = async (req, res) => {
     }
 
     const events = await Event.find(filter)
+      .sort({ eventDate: 1 })
       .skip(Number(skip))
       .limit(Number(limit));
 
@@ -162,24 +167,24 @@ export const deleteEvent = async (req, res) => {
 export const updateEventSeating = async (req, res) => {
   try {
     const { seatingId } = req.params;
-    const { seatCapacity } = req.body;
+    const { seatCapacity, pricePerSeat } = req.body;
+    let eventSeating = await EventSeating.findById(seatingId);
 
-    const seating = await EventSeating.findByIdAndUpdate(
-      { id: seatingId },
-      { seatCapacity, remainingSeats: seatCapacity - bookedSeats },
-      { new: true }
-    );
-
-    if (!seating) {
+    if (!eventSeating) {
       return res
         .status(404)
-        .json({ success: false, message: "Seating not found for this event" });
+        .json({ success: false, message: "Seating not found" });
     }
+
+    eventSeating.pricePerSeat = pricePerSeat;
+    eventSeating.seatCapacity = seatCapacity;
+    eventSeating.remainingSeats = seatCapacity - eventSeating.bookedSeats;
+    eventSeating = await eventSeating.save();
 
     res.status(200).json({
       success: true,
       message: "Seating updated successfully",
-      seating,
+      eventSeating,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -188,25 +193,27 @@ export const updateEventSeating = async (req, res) => {
 
 export const createEventSeating = async (req, res) => {
   try {
-    const { eventId, seatCapacity, pricePerSeat } = req.body;
-
-    const event = await Event.findById(eventId);
+    const { id } = req.params;
+    const { seatCapacity, pricePerSeat, seatingType } = req.body;
+    const event = await Event.findById(id);
     if (!event) {
       return res
         .status(404)
         .json({ success: false, message: "Event not found" });
     }
-    const newSeating = new Seating({
-      eventId: event._id,
+    const input = {
+      eventId: id,
+      seatingType,
       seatCapacity,
       remainingSeats: seatCapacity,
       pricePerSeat,
-    });
-    await newSeating.save();
+    };
+    const newEventSeating = new EventSeating(input);
+    await newEventSeating.save();
     res.status(201).json({
       success: true,
       message: "Event seating created successfully",
-      data: newSeating,
+      data: newEventSeating,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -216,8 +223,7 @@ export const createEventSeating = async (req, res) => {
 export const getEventSeatingByEventId = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const eventSeating = await EventSeating.findMany({ eventId: id });
+    const eventSeating = await EventSeating.find({ eventId: id });
 
     if (!eventSeating) {
       return res
@@ -274,18 +280,20 @@ export const eventLists = async (req, res) => {
     const filter = {};
 
     if (fromDate && toDate) {
-      from = from < from ? from : new Date(fromDate);
+      from = new Date(fromDate) < today ? today : new Date(fromDate);
       to = new Date(toDate);
       filter.date = { $gte: from, $lte: to };
       if (from > to) {
-        return res
-          .status(400)
-          .json({ error: "from date cannot be after to date." });
+        return res.status(400).json({
+          success: false,
+          error: "from date cannot be after to date.",
+        });
       }
     } else if (fromDate && !toDate) {
-      filter.date = from;
+      filter.date = new Date(fromDate) < today ? today : new Date(fromDate);
+    } else if (!fromDate && !toDate) {
+      filter.date = today;
     }
-
     if (name) {
       filter.name = { $regex: name, $options: "i" };
     }
@@ -293,8 +301,8 @@ export const eventLists = async (req, res) => {
     if (location) {
       filter.location = { $regex: location, $options: "i" };
     }
-
     const events = await Event.find(filter)
+      .sort({ eventDate: 1 })
       .skip(Number(skip))
       .limit(Number(limit));
 
