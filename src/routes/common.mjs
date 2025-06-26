@@ -48,12 +48,40 @@ const router = express.Router();
  *     summary: Get event seating by  event id
  *     tags: [Common Events and Seating]
  *     parameters:
- *       - in: path
- *         name: id
- *         required: true
+ *       - in: query
+ *         name: name
  *         schema:
  *           type: string
- *         description: The ID of the event
+ *         description: Event name (case-insensitive)
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Location (case-insensitive)
+ *       - in: query
+ *         name: fromDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date (MM-DD-YYYY)
+ *       - in: query
+ *         name: toDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date (MM-DD-YYYY)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Items per page
  *     responses:
  *       200:
  *         description: list of event seating

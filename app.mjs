@@ -5,6 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
+import morgan from "morgan";
 
 import authRouter from "./src/routes/auth.mjs";
 import adminRouter from "./src/routes/admin.mjs";
