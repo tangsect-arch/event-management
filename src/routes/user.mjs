@@ -36,7 +36,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/v1/user/event/{id}/seating/{seatingId}:
+ * /api/v1/user/event/{id}/eventseating/{seatingId}/booking:
  *   post:
  *     summary: Create a booking for an event seating
  *     tags: [User Events and Bookings]
@@ -44,7 +44,7 @@ const router = express.Router();
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: eventId
+ *         name: id
  *         required: true
  *         schema:
  *           type: string
@@ -60,15 +60,9 @@ const router = express.Router();
  *       content:
  *         application/json:
  *           schema:
- *             type: object *
+ *             type: object
  *             properties:
- *               userId:
- *                 type: string
- *                 required: true
  *               seatCount:
- *                 type: number
- *                 required: true
- *               seatingType:
  *                 type: number
  *                 required: true
  *     responses:
@@ -102,7 +96,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/v1/user/event/{id}/seating/{seatingId}/bookings/{bookingId}:
+ * /api/v1/user/event/{id}/eventseating/{seatingId}/booking/{bookingId}:
  *   put:
  *     summary: Create a booking for an event seating
  *     tags: [User Events and Bookings]
@@ -137,7 +131,7 @@ const router = express.Router();
 router
   .get("/bookings", getBookings)
   .get("bookings/:id", getBookingById)
-  .post("/event/:id/eventseating/:seatingId/bookings", bookEvent)
-  .put("/event/:id/eventseating/:seatingId/bookings/:bookingId", cancelBooking);
+  .post("/event/:id/eventseating/:seatingId/booking", bookEvent)
+  .put("/event/:id/eventseating/:seatingId/booking/:bookingId", cancelBooking);
 
 export default router;

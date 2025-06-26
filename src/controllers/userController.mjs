@@ -1,11 +1,12 @@
 import Event from "../models/Event.mjs";
 import EventSeating from "../models/EventSeating.mjs";
 import Seating from "../models/Seating.mjs";
+import User from "../models/User.mjs";
 
 export const bookEvent = async (req, res) => {
   try {
     const { id, seatingId } = req.params;
-    const { userId, seatCount, seatingType } = req.body;
+    const { userId, seatCount } = req.body;
     const event = await Event.findById(id);
     if (!event) {
       return res
@@ -18,7 +19,6 @@ export const bookEvent = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Event seating not found" });
     }
-
     const bookingUser = await User.findById(userId);
     if (!bookingUser) {
       return res.status(404).json({ success: false, message: "No user found" });
@@ -31,14 +31,14 @@ export const bookEvent = async (req, res) => {
     const newBooking = new Seating({
       eventId: id,
       eventSeatingId: seatingId,
-      userId,
+      userId: bookingUser._id,
       seatCount,
-      seatingType,
     });
     await newBooking.save();
     eventSeating.remainingSeats -= seatCount;
     eventSeating.bookedSeats += seatCount;
     await eventSeating.save();
+
     res.status(201).json({
       success: true,
       message: "Event booked successfully",
@@ -52,7 +52,7 @@ export const bookEvent = async (req, res) => {
 export const getBookings = async (req, res) => {
   try {
     const { userId } = req.body;
-    const bookings = await Seating.find(userId)
+    const bookings = await Seating.find({ userId })
       .populate("eventId")
       .populate("eventSeatingId")
       .populate("userId");

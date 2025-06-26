@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const SeatingTableSchema = new mongoose.Schema({
   eventId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "EventTable",
+    ref: "Event",
     required: true,
   },
   eventSeatingId: {
