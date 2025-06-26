@@ -209,7 +209,14 @@ export const createEventSeating = async (req, res) => {
       pricePerSeat,
     };
     const newEventSeating = new EventSeating(input);
-    await newEventSeating.save();
+    await newEventSeating.save().catch((error) => {
+      if (error.code === 11000) {
+        return res.status(400).json({
+          success: false,
+          message: "Event seating already exist",
+        });
+      }
+    });;
     res.status(201).json({
       success: true,
       message: "Event seating created successfully",
@@ -271,40 +278,59 @@ export const eventLists = async (req, res) => {
       limit = 10,
     } = req.query;
 
-    const skip = (page - 1) * limit;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    let from = today;
-    let to;
-    const filter = {};
 
+    const filter = {};
     if (fromDate && toDate) {
-      from = new Date(fromDate) < today ? today : new Date(fromDate);
-      to = new Date(toDate);
-      filter.date = { $gte: from, $lte: to };
+      const from = new Date(fromDate);
+      const to = new Date(toDate);
+
+      if (isNaN(from) || isNaN(to)) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid date format" });
+      }
+
       if (from > to) {
         return res.status(400).json({
           success: false,
-          error: "from date cannot be after to date.",
+          message: "From date cannot be after To date.",
         });
       }
+
+      filter.eventDate = {
+        $gte: from < today ? today : from,
+        $lte: to,
+      };
     } else if (fromDate && !toDate) {
-      filter.date = new Date(fromDate) < today ? today : new Date(fromDate);
+      const from = new Date(fromDate);
+      if (isNaN(from)) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid fromDate" });
+      }
+      filter.eventDate = { $gte: from < today ? today : from };
     } else if (!fromDate && !toDate) {
-      filter.date = today;
+      filter.eventDate = { $gte: today };
     }
+
     if (name) {
-      filter.name = { $regex: name, $options: "i" };
+      filter.eventName = { $regex: name, $options: "i" };
     }
 
     if (location) {
       filter.location = { $regex: location, $options: "i" };
     }
+
     const events = await Event.find(filter)
       .sort({ eventDate: 1 })
-      .skip(Number(skip))
-      .limit(Number(limit));
+      .skip(skip)
+      .limit(limitNumber);
 
     const total = await Event.countDocuments(filter);
 
@@ -313,16 +339,20 @@ export const eventLists = async (req, res) => {
         .status(404)
         .json({ success: false, message: "No events found" });
     }
-    res.status(200).json({
+
+    return res.status(200).json({
       success: true,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      page: pageNumber,
+      limit: limitNumber,
+      totalPages: Math.ceil(total / limitNumber),
       totalRecords: total,
       data: events,
       message: "Events fetched successfully",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.error("eventLists error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };

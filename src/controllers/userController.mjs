@@ -37,7 +37,14 @@ export const bookEvent = async (req, res) => {
     await newBooking.save();
     eventSeating.remainingSeats -= seatCount;
     eventSeating.bookedSeats += seatCount;
-    await eventSeating.save();
+    await eventSeating.save().catch((error) => {
+      if (error.code === 11000) {
+        return res.status(400).json({
+          success: false,
+          message: "Already booked.",
+        });
+      }
+    });;
 
     res.status(201).json({
       success: true,

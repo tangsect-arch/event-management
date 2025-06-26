@@ -32,7 +32,10 @@ const SeatingTableSchema = new mongoose.Schema({
   },
 });
 
-SeatingTableSchema.index({ eventId: 1, userId: 1 }, { unique: true });
+SeatingTableSchema.index(
+  { eventId: 1, userId: 1 },
+  { unique: true, partialFilterExpression: { status: "confirmed" } }
+);
 
 const Seating = mongoose.model("Seating", SeatingTableSchema);
 export default Seating;

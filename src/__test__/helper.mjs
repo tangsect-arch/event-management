@@ -3,12 +3,16 @@ import app from "../../app.mjs";
 import User from "../models/User.mjs";
 import Event from "../models/Event.mjs";
 import EventSeating from "../models/EventSeating.mjs";
+import Seating from "../models/Seating.mjs";
 
 const now = new Date();
 
 export const dbInserts = async () => {
+  const userId = "685d3ae2b99c6d851425619d";
+  const adminId = "685d3ae2b99c6d851425619c";
   const users = await User.insertMany([
     {
+      _id: adminId,
       username: "testadmin",
       password: "$2b$10$2/iipf18qpABNpMNv59lZeobdZWz5CNEeZT5icU135G0wjRXy4uQu",
       role: "admin",
@@ -16,6 +20,7 @@ export const dbInserts = async () => {
       name: "Test Admin",
     },
     {
+      _id: userId,
       username: "testuser",
       password: "$2b$10$2/iipf18qpABNpMNv59lZeobdZWz5CNEeZT5icU135G0wjRXy4uQu",
       role: "user",
@@ -24,31 +29,32 @@ export const dbInserts = async () => {
     },
   ]);
 
-  const adminId = users[0]._id;
-  const userId = users[1]._id;
-
   const event = await Event.insertMany([
     {
+      _id: "685d3ae2b99c6d85142561a0",
       eventName: "Music Fest " + now.getTime(),
-      eventDate: new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000),
+      eventDate: new Date("2026-10-01"),
       location: "Chennai",
       description: "A big music festival",
     },
     {
+      _id: "685d3ae2b99c6d85142561a1",
       eventName: "Tech Conference " + (now.getTime() + 1),
-      eventDate: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000),
+      eventDate: new Date("2026-10-01"),
       location: "Bangalore",
       description: "Annual tech meetup",
     },
     {
+      _id: "685d3ae2b99c6d85142561a2",
       eventName: "Art Show " + (now.getTime() + 2),
-      eventDate: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000),
+      eventDate: new Date("2026-10-01"),
       location: "Delhi",
       description: "Exhibition of modern art",
     },
     {
+      _id: "685d3ae2b99c6d85142561a3",
       eventName: "my new event " + now.getTime(),
-      eventDate: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000),
+      eventDate: new Date("2026-10-01"),
       location: "Hyderabad",
       description: "test description",
     },
@@ -66,6 +72,7 @@ export const dbInserts = async () => {
       pricePerSeat: 1500,
     },
     {
+      _id: "685d3ae2b99c6d85142561a7",
       eventId: event[1]._id,
       seatingName: "Regular Section",
       seatingType: "Regular",
@@ -74,12 +81,23 @@ export const dbInserts = async () => {
       remainingSeats: 100,
     },
     {
+      _id: "685d486f3baa2201b1d4e1b5",
       eventId: event[1]._id,
       seatingName: "Economy Section",
       seatingType: "Economy",
       seatCapacity: 300,
       pricePerSeat: 500,
       remainingSeats: 100,
+    },
+  ]);
+
+  const eventBookingId = await Seating.insertMany([
+    {
+      eventId: event[1]._id,
+      eventSeatingId: eventSeatingId[1]._id,
+      seatCount: 2,
+      userId: userId,
+      status: "confirmed",
     },
   ]);
 };

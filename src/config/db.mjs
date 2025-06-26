@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { env } from "./env.mjs";
+import { env, test_env } from "./env.mjs";
 
 export const connectDB = async () => {
   try {
@@ -7,6 +7,10 @@ export const connectDB = async () => {
   } catch (error) {
     process.exit(1);
   }
+};
+
+export const connectDBTest = async () => {
+  await mongoose.connect(test_env.DB_URL);
 };
 
 mongoose.connection.on("connected", () => {});
