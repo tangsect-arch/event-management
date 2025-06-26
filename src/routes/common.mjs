@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  eventLists,
   getEventById,
   getEvents,
   getEventSeatingByEventId,
@@ -23,22 +24,44 @@ const router = express.Router();
  *     tags: [Common Events and Seating]
  *     parameters:
  *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Partial match on event name (case-insensitive)
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Partial match on location (case-insensitive)
+ *       - in: query
+ *         name: fromDate
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for filtering (MM-DD-YYYY). Must be today or later.
+ *       - in: query
+ *         name: toDate
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for filtering (MM-DD-YYYY). Must be after fromDate.
+ *       - in: query
  *         name: page
  *         schema:
  *           type: integer
  *           default: 1
- *         description: Page number (starts from 1)
+ *         description: Page number for pagination
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *           default: 10
- *         description: Number of items per page
+ *         description: Number of events per page
  *     responses:
  *       200:
  *         description: List of events
- *       401:
- *         description: Unauthorized
  */
 
 /**
@@ -57,8 +80,6 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: list of event seating
- *       401:
- *        description: Unauthorized
  */
 
 /**
@@ -99,12 +120,10 @@ const router = express.Router();
  *     responses:
  *       201:
  *         description: Booking successful
- *       401:
- *         description: Unauthorized
  */
 
 router
-  .get("/event", getEvents)
+  .get("/event", eventLists)
   .get("/event/:id", getEventById)
   .get("/event/:id/seating", getEventSeatingByEventId)
   .get("/event/:id/seating/:seatingId", getEventSeatingBySeatingId);

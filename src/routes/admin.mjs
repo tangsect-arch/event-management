@@ -213,7 +213,59 @@ const router = express.Router();
  *         description: Unauthorized
  */
 
+/**
+ * @swagger
+ * /api/v1/admin/event:
+ *   get:
+ *     summary: Get all events
+ *     tags: [Admin Events]
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Event name (case-insensitive)
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Location (case-insensitive)
+ *       - in: query
+ *         name: fromDate
+ *
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date (MM-DD-YYYY)
+ *       - in: query
+ *         name: toDate
+ *
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date (MM-DD-YYYY)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Items per page
+ *
+ *     responses:
+ *       200:
+ *         description: List of events
+ *       401:
+ *         description: Unauthorized
+ */
+
 router
+  .get("/event", getEvents)
   .post("/event", createEvent)
   .put("/event/:id", updateEvent)
   .delete("/event/:id", deleteEvent)

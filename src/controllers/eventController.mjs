@@ -31,11 +31,54 @@ export const createEvent = async (req, res) => {
 
 export const getEvents = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const {
+      name,
+      fromDate,
+      toDate,
+      location,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
     const skip = (page - 1) * limit;
-    const events = await Event.find().skip(skip).limit(limit);
-    const total = await Event.countDocuments();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let from, to;
+
+    if (fromDate && toDate) {
+      from = new Date(fromDate);
+      to = new Date(toDate);
+
+      if (from > to) {
+        return res
+          .status(400)
+          .json({ error: "from date cannot be after to date." });
+      }
+    } else if (fromDate && !toDate) {
+      return res.status(400).json({ error: "to date is required." });
+    } else if (!fromDate && toDate) {
+      return res.status(400).json({ error: "from date is required." });
+    }
+    const filter = {};
+
+    if (name) {
+      filter.name = { $regex: name, $options: "i" };
+    }
+
+    if (location) {
+      filter.location = { $regex: location, $options: "i" };
+    }
+    if (from && to) {
+      filter.date = { $gte: from, $lte: to };
+    }
+
+    const events = await Event.find(filter)
+      .skip(Number(skip))
+      .limit(Number(limit));
+
+    const total = await Event.countDocuments(filter);
+
     if (events.length === 0) {
       return res
         .status(404)
@@ -205,6 +248,71 @@ export const getEventSeatingBySeatingId = async (req, res) => {
       data: evenSteating,
       success: true,
       message: "Event seating fetched successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const eventLists = async (req, res) => {
+  try {
+    const {
+      name,
+      fromDate,
+      toDate,
+      location,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    const skip = (page - 1) * limit;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let from = today;
+    let to;
+    const filter = {};
+
+    if (fromDate && toDate) {
+      from = from < from ? from : new Date(fromDate);
+      to = new Date(toDate);
+      filter.date = { $gte: from, $lte: to };
+      if (from > to) {
+        return res
+          .status(400)
+          .json({ error: "from date cannot be after to date." });
+      }
+    } else if (fromDate && !toDate) {
+      filter.date = from;
+    }
+
+    if (name) {
+      filter.name = { $regex: name, $options: "i" };
+    }
+
+    if (location) {
+      filter.location = { $regex: location, $options: "i" };
+    }
+
+    const events = await Event.find(filter)
+      .skip(Number(skip))
+      .limit(Number(limit));
+
+    const total = await Event.countDocuments(filter);
+
+    if (events.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No events found" });
+    }
+    res.status(200).json({
+      success: true,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      totalRecords: total,
+      data: events,
+      message: "Events fetched successfully",
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal server error" });
