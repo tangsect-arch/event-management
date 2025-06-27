@@ -1,9 +1,11 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.mjs";
+import { logger } from "../utils/logger.mjs";
 export const authMiddleware = (req, res, next) => {
   const token = req.headers["authorization"]?.split(" ")[1];
 
   if (!token) {
+    logger.error(`Access denied`);
     return res
       .status(401)
       .json({ message: "Access denied. No token provided." });
@@ -11,10 +13,15 @@ export const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, env.JWT_SECRET);
+    if (decoded.role !== "user") {
+      logger.error(`Access denied`);
+      return res.status(403).json({ message: "Access forbidden. Users only." });
+    }
     req.body = { ...req.body, userId: decoded.id };
 
     next();
   } catch (error) {
+    logger.error(error);
     res.status(400).json({ message: "Invalid token." });
   }
 };
@@ -23,6 +30,7 @@ export const verifyAdmin = (req, res, next) => {
   const token = req.headers["authorization"]?.split(" ")[1];
 
   if (!token) {
+    logger.error(`Access denied`);
     return res
       .status(401)
       .json({ message: "Access denied. No token provided." });
@@ -31,6 +39,7 @@ export const verifyAdmin = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, env.JWT_SECRET);
     if (decoded.role !== "admin") {
+      logger.error(`Access denied`);
       return res
         .status(403)
         .json({ message: "Access forbidden. Admins only." });
@@ -38,6 +47,7 @@ export const verifyAdmin = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
+    logger.error(error);
     res.status(400).json({ message: "Invalid token." });
   }
 };
