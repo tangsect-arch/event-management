@@ -44,7 +44,7 @@ export const bookEvent = async (req, res) => {
           message: "Already booked.",
         });
       }
-    });;
+    });
 
     res.status(201).json({
       success: true,
@@ -52,6 +52,7 @@ export const bookEvent = async (req, res) => {
       data: newBooking,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -69,6 +70,7 @@ export const getBookings = async (req, res) => {
       data: bookings,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -89,6 +91,7 @@ export const getBookingById = async (req, res) => {
       data: booking,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -126,6 +129,7 @@ export const cancelBooking = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Booking cancelled successfully" });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

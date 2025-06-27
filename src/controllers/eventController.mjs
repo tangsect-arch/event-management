@@ -12,6 +12,7 @@ export const createEvent = async (req, res) => {
     });
 
     await newEvent.save().catch((error) => {
+      logger.error(error);
       if (error.code === 11000) {
         return res.status(400).json({
           success: false,
@@ -24,6 +25,7 @@ export const createEvent = async (req, res) => {
       .status(201)
       .json({ success: true, message: "Event created successfully" });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -99,6 +101,7 @@ export const getEvents = async (req, res) => {
       message: "Events fetched successfully",
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -116,6 +119,7 @@ export const getEventById = async (req, res) => {
       message: "Event fetched successfully",
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -141,6 +145,7 @@ export const updateEvent = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Event updated successfully", event });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -160,6 +165,7 @@ export const deleteEvent = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Event deleted successfully" });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -187,6 +193,7 @@ export const updateEventSeating = async (req, res) => {
       eventSeating,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -216,13 +223,14 @@ export const createEventSeating = async (req, res) => {
           message: "Event seating already exist",
         });
       }
-    });;
+    });
     res.status(201).json({
       success: true,
       message: "Event seating created successfully",
       data: newEventSeating,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -243,6 +251,7 @@ export const getEventSeatingByEventId = async (req, res) => {
       message: "Event seating fetched successfully",
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -263,6 +272,7 @@ export const getEventSeatingBySeatingId = async (req, res) => {
       message: "Event seating fetched successfully",
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -350,6 +360,7 @@ export const eventLists = async (req, res) => {
       message: "Events fetched successfully",
     });
   } catch (error) {
+    logger.error(error);
     console.error("eventLists error:", error);
     return res
       .status(500)
